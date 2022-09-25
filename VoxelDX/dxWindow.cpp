@@ -32,13 +32,14 @@ DXWindow::DXWindow(HINSTANCE instance, int showWindow)
 void DXWindow::run() {
 	bool isGameRunning = true;
 	MSG msg = {};
+
 	while (isGameRunning) {
 		if (PeekMessage(&msg, window, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 
 			if (msg.message == WM_QUIT) {
-				isGameRunning = TRUE;
+				isGameRunning = false;
 			}
 		}
 
@@ -54,6 +55,7 @@ LRESULT CALLBACK DXWindow::WindowProc(HWND window, UINT msg, WPARAM wParam, LPAR
 	{
 	case WM_CLOSE:
 		DestroyWindow(window);
+		return 0;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
