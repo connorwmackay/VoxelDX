@@ -10,6 +10,7 @@ DXWindow::DXWindow(HINSTANCE instance, int showWindow)
 	wndClass.lpfnWndProc = WindowProc;
 	wndClass.hInstance = instance;
 	wndClass.lpszClassName = CLASS_NAME;
+	wndClass.style = CS_HREDRAW | CS_VREDRAW;
 	RegisterClass(&wndClass);
 
 	window = CreateWindowEx(
@@ -47,26 +48,21 @@ void DXWindow::run() {
 		renderer.render();
 	}
 
-	DestroyWindow(window);
+	PostQuitMessage(0);
 }
 
 LRESULT CALLBACK DXWindow::WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
 	switch (msg)
 	{
+	case WM_QUIT:
+		DestroyWindow(window);
+		return 0;
 	case WM_CLOSE:
 		DestroyWindow(window);
 		return 0;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
-	case WM_PAINT:
-	{
-		PAINTSTRUCT paintStruct;
-		HDC hdc = BeginPaint(window, &paintStruct);
-		FillRect(hdc, &paintStruct.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
-		EndPaint(window, &paintStruct);
-	}
-	return 0;
 	}
 
 	return DefWindowProc(window, msg, wParam, lParam);

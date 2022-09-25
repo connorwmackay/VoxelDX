@@ -5,7 +5,7 @@
 DXRenderer::DXRenderer() {}
 
 DXRenderer::DXRenderer(HINSTANCE instance, HWND window)
-	: instance(instance) {
+	: instance(instance), window(window), camera({0.0f, 1.0f, -5.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0}) {
 	D3D_FEATURE_LEVEL levels[] = {
 		D3D_FEATURE_LEVEL_11_1
 	};
@@ -114,61 +114,20 @@ DXRenderer::DXRenderer(HINSTANCE instance, HWND window)
 		depthStencilView.Get()
 	);
 
-	// Setup the quad buffers
-	DirectX::XMFLOAT3 colour = DirectX::XMFLOAT3{ 0, 1, 0 };
-	quadVertices[0] = { DirectX::XMFLOAT3{-0.5f, 0.5f, 0.0f}, colour };
-	quadVertices[1] = { DirectX::XMFLOAT3{0.5f, 0.5f, 0.0f}, colour };
-	quadVertices[2] = { DirectX::XMFLOAT3{-0.5f, -0.5f, 0.0f}, colour };
-	quadVertices[3] = { DirectX::XMFLOAT3{0.5f, -0.5f, 0.0f}, colour };
-
-	quadIndices[0] = 0;
-	quadIndices[1] = 1;
-	quadIndices[2] = 2;
-	quadIndices[3] = 1;
-	quadIndices[4] = 3;
-	quadIndices[5] = 2;
-
-	CD3D11_BUFFER_DESC quadVBDesc(sizeof(quadVertices), D3D11_BIND_VERTEX_BUFFER);
-
-	D3D11_SUBRESOURCE_DATA quadVBData;
-	ZeroMemory(&quadVBData, sizeof(D3D11_SUBRESOURCE_DATA));
-	quadVBData.pSysMem = quadVertices;
-	quadVBData.SysMemSlicePitch = 0;
-	quadVBData.SysMemSlicePitch = 0;
-
-	hRes = device->CreateBuffer(&quadVBDesc, &quadVBData, &quadVB);
-	assert(SUCCEEDED(hRes));
-
-	quadIndicesCount = ARRAYSIZE(quadIndices);
-
-	CD3D11_BUFFER_DESC quadIBDesc(sizeof(quadIndices), D3D11_BIND_INDEX_BUFFER);
-
-	D3D11_SUBRESOURCE_DATA quadIBData;
-	ZeroMemory(&quadIBData, sizeof(D3D11_SUBRESOURCE_DATA));
-	quadIBData.pSysMem = quadIndices;
-	quadIBData.SysMemPitch = 0;
-	quadIBData.SysMemSlicePitch = 0;
-
-	hRes = device->CreateBuffer(&quadIBDesc, &quadIBData, &quadIB);
-	assert(SUCCEEDED(hRes));
-
-	D3D11_INPUT_ELEMENT_DESC inputElementDesc[] = {
-	{
-			"POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT,
-			0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0
-		},
-	{
-			"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT,
-			0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0
-		}
-	};
-
-	quadShader = DXShader(device.Get(), quadVertexShader, ARRAYSIZE(quadVertexShader), quadPixelShader,ARRAYSIZE(quadPixelShader), inputElementDesc, ARRAYSIZE(inputElementDesc));
+	block = Block(device.Get(), {0.0f, 0.0f, 0.0f}, {0.0f, 45.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 0.0f});
 }
 
 void DXRenderer::update()
 {
-	
+	// Get the Window Size
+	RECT windowRect;
+	GetWindowRect(window, &windowRect);
+	int windowWidth = abs(windowRect.right - windowRect.left);
+	int windowHeight = abs(windowRect.bottom - windowRect.top);
+
+	// Get the View Project Matrix
+	XMFLOAT4X4 viewProjection = camera.getViewPerspectiveMatrix(45.0f, windowWidth, windowHeight);
+	block.update(context.Get(), viewProjection);
 }
 
 void DXRenderer::render() {
@@ -189,18 +148,8 @@ void DXRenderer::render() {
 		depthStencilView.Get()
 	);
 
-	// Perform setting of buffers, draw calls etc...
-	UINT stride = sizeof(Vertex);
-	UINT offset = 0;
+	block.draw(context.Get());
 
-	context->IASetVertexBuffers(0, 1, &quadVB, &stride, &offset);
-	context->IASetIndexBuffer(quadIB, DXGI_FORMAT_R16_UINT, 0);
-	context->IASetInputLayout(quadShader.getInputLayout());
-	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	context->VSSetShader(quadShader.getVertexShader(), nullptr, 0);
-	context->PSSetShader(quadShader.getPixelShader(), nullptr, 0);
-	context->DrawIndexed(quadIndicesCount, 0, 0);
-
+	// Swap back buffers
 	swapChain->Present(1, 0);
 }
