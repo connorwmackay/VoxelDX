@@ -35,7 +35,7 @@ void DXWindow::run() {
 	MSG msg = {};
 
 	while (isGameRunning) {
-		if (PeekMessage(&msg, window, 0, 0, PM_REMOVE)) {
+		while (PeekMessage(&msg, window, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 
@@ -47,8 +47,6 @@ void DXWindow::run() {
 		renderer.update();
 		renderer.render();
 	}
-
-	PostQuitMessage(0);
 }
 
 LRESULT CALLBACK DXWindow::WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
