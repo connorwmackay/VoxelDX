@@ -1,5 +1,7 @@
 #include "dxWindow.h"
 
+#include <future>
+
 DXWindow::DXWindow(HINSTANCE instance, int showWindow)
 	: instance(instance), wndClass({}) {
 	const wchar_t CLASS_NAME[] = L"VoxelDX";
@@ -30,15 +32,21 @@ DXWindow::DXWindow(HINSTANCE instance, int showWindow)
 void DXWindow::run() {
 	bool isGameRunning = true;
 	MSG msg = {};
-	while (msg.message != WM_QUIT) {
-		
-		if (GetMessage(&msg, NULL, 0U, 0U) > 0) {
+	while (isGameRunning) {
+		if (PeekMessage(&msg, window, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
+
+			if (msg.message == WM_QUIT) {
+				isGameRunning = TRUE;
+			}
 		}
 
+		renderer.update();
 		renderer.render();
 	}
+
+	DestroyWindow(window);
 }
 
 LRESULT CALLBACK DXWindow::WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
