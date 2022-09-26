@@ -7,8 +7,9 @@
 #include <dxgi1_3.h>
 #include <DirectXMath.h>
 
-#include "block.h"
+#include "mesh.h"
 #include "camera.h"
+#include "chunk.h"
 #include "quadPixelShader.h"
 #include "quadVertexShader.h"
 
@@ -31,7 +32,7 @@ protected:
 	D3D11_VIEWPORT viewport;
 
 	Camera camera;
-	Block block;
+	Chunk chunk;
 public:
 	DXRenderer();
 	DXRenderer(HINSTANCE instance, HWND window);

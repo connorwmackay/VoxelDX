@@ -5,7 +5,7 @@
 DXRenderer::DXRenderer() {}
 
 DXRenderer::DXRenderer(HINSTANCE instance, HWND window)
-	: instance(instance), window(window), camera({0.0f, 1.0f, -5.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0}) {
+	: instance(instance), window(window), camera({0.0f, 100.0f, -50.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0}) {
 	D3D_FEATURE_LEVEL levels[] = {
 		D3D_FEATURE_LEVEL_11_1
 	};
@@ -114,7 +114,7 @@ DXRenderer::DXRenderer(HINSTANCE instance, HWND window)
 		depthStencilView.Get()
 	);
 
-	block = Block(device.Get(), {0.0f, 0.0f, 0.0f}, {0.0f, 45.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 0.0f});
+	chunk = Chunk(device.Get(), {0.0f, 0.0f, 0.0f});
 }
 
 void DXRenderer::update()
@@ -127,7 +127,7 @@ void DXRenderer::update()
 
 	// Get the View Project Matrix
 	XMFLOAT4X4 viewProjection = camera.getViewPerspectiveMatrix(45.0f, windowWidth, windowHeight);
-	block.update(context.Get(), viewProjection);
+	chunk.update(context.Get(), viewProjection);
 }
 
 void DXRenderer::render() {
@@ -149,7 +149,7 @@ void DXRenderer::render() {
 		depthStencilView.Get()
 	);
 
-	block.draw(context.Get());
+	chunk.draw(context.Get());
 
 	// Swap back buffers
 	swapChain->Present(1, 0);

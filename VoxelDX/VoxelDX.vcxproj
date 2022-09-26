@@ -128,16 +128,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="block.cpp" />
+    <ClCompile Include="mesh.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="chunk.cpp" />
     <ClCompile Include="dxRenderer.cpp" />
     <ClCompile Include="dxShader.cpp" />
     <ClCompile Include="dxWindow.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="block.h" />
+    <ClInclude Include="mesh.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="chunk.h" />
     <ClInclude Include="dxRenderer.h" />
     <ClInclude Include="dxShader.h" />
     <ClInclude Include="dxWindow.h" />
