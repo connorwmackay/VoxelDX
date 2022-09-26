@@ -70,7 +70,7 @@ DXRenderer::DXRenderer(HINSTANCE instance, HWND window)
 	hRes = device->CreateRenderTargetView(
 		backBuffer.Get(),
 		nullptr,
-		&renderTargetView
+		renderTargetView.GetAddressOf()
 	);
 
 	assert(SUCCEEDED(hRes));
@@ -110,7 +110,7 @@ DXRenderer::DXRenderer(HINSTANCE instance, HWND window)
 	context->RSSetViewports(1, &viewport);
 	context->OMSetRenderTargets(
 		1,
-		&renderTargetView,
+		renderTargetView.GetAddressOf(),
 		depthStencilView.Get()
 	);
 
@@ -134,7 +134,8 @@ void DXRenderer::render() {
 
 	const float teal[] = { 0.098f, 0.439f, 0.439f, 1.000f };
 
-	context->ClearRenderTargetView(renderTargetView, teal);
+	assert(renderTargetView.Get());
+	context->ClearRenderTargetView(renderTargetView.Get(), teal);
 	context->ClearDepthStencilView(
 		depthStencilView.Get(),
 		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
@@ -144,7 +145,7 @@ void DXRenderer::render() {
 
 	context->OMSetRenderTargets(
 		1,
-		&renderTargetView,
+		renderTargetView.GetAddressOf(),
 		depthStencilView.Get()
 	);
 

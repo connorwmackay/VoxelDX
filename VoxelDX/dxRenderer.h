@@ -26,7 +26,7 @@ protected:
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencil;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencilView;
-	ID3D11RenderTargetView* renderTargetView;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> renderTargetView;
 	
 	D3D11_VIEWPORT viewport;
 

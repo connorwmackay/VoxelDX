@@ -26,27 +26,24 @@ DXWindow::DXWindow(HINSTANCE instance, int showWindow)
 	);
 
 	ShowWindow(window, showWindow);
-
 	renderer = DXRenderer(instance, window);
 }
 
 void DXWindow::run() {
-	bool isGameRunning = true;
 	MSG msg = {};
-
-	while (isGameRunning) {
-		while (PeekMessage(&msg, window, 0, 0, PM_REMOVE)) {
+	while (msg.message != WM_QUIT) {
+		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-
-			if (msg.message == WM_QUIT) {
-				isGameRunning = false;
-			}
 		}
-
-		renderer.update();
-		renderer.render();
+		else
+		{
+			renderer.update();
+			renderer.render();
+		}
 	}
+
+	//renderer.release();
 }
 
 LRESULT CALLBACK DXWindow::WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -54,13 +51,10 @@ LRESULT CALLBACK DXWindow::WindowProc(HWND window, UINT msg, WPARAM wParam, LPAR
 	{
 	case WM_QUIT:
 		DestroyWindow(window);
-		return 0;
 	case WM_CLOSE:
 		DestroyWindow(window);
-		return 0;
 	case WM_DESTROY:
 		PostQuitMessage(0);
-		return 0;
 	}
 
 	return DefWindowProc(window, msg, wParam, lParam);
