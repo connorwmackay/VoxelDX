@@ -14,9 +14,9 @@ Chunk::Chunk (ID3D11Device* device, XMFLOAT3 position)
 			for (int z = 0; z < CHUNK_SIZE.z; z++) {
 				Block block{};
 
+				block.colour = blockColour;
 				block.isAir = false;
 				block.isVisible = true;
-				block.colour = blockColour;
 
 				blocks[x][y][z] = block;
 			}
@@ -31,7 +31,6 @@ Chunk::Chunk (ID3D11Device* device, XMFLOAT3 position)
 	for (int x = 0; x < CHUNK_SIZE.x; x++) {
 		for (int y = 0; y < CHUNK_SIZE.y; y++) {
 			for (int z = 0; z < CHUNK_SIZE.z; z++) {
-
 				if (!blocks[x][y][z].isAir && blocks[x][y][z].isVisible) {
 					XMVECTOR posV = { (float)x, (float)y, (float)z };
 					XMFLOAT3 pos;
@@ -42,7 +41,7 @@ Chunk::Chunk (ID3D11Device* device, XMFLOAT3 position)
 					world = XMMatrixMultiply(world, XMMatrixRotationX(XMConvertToRadians(0.0f)));
 					world = XMMatrixMultiply(world, XMMatrixRotationY(XMConvertToRadians(0.0f)));
 					world = XMMatrixMultiply(world, XMMatrixRotationZ(XMConvertToRadians(0.0f)));
-					world = XMMatrixMultiply(world, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+					world = XMMatrixMultiply(world, XMMatrixScaling(1.0f, 2.0f, 1.0f));
 
 					posV = XMVector3Transform(posV, world);
 					XMStoreFloat3(&pos, posV);

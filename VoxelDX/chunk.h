@@ -6,6 +6,7 @@
 
 using namespace DirectX;
 
+// TODO: Only half of Y blocks show up
 #define CHUNK_SIZE XMFLOAT3 (16.0f, 16.0f, 16.0f)
 
 struct Block
