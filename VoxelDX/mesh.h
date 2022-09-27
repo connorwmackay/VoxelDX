@@ -16,7 +16,8 @@ struct Vertex
 typedef struct MeshConstants
 {
 	XMFLOAT4X4 world;
-	XMFLOAT4X4 viewProjection;
+	XMFLOAT4X4 view;
+	XMFLOAT4X4 projection;
 };
 
 class Mesh
@@ -42,7 +43,7 @@ public:
 
 	std::vector<Vertex> getVertices() const;
 
-	void update(ID3D11DeviceContext* context, XMFLOAT4X4 viewProjection);
+	void update(ID3D11DeviceContext* context, XMFLOAT4X4 view, XMFLOAT4X4 projection);
 	void draw(ID3D11DeviceContext* context);
 };
 

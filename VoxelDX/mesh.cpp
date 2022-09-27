@@ -47,19 +47,20 @@ Mesh::Mesh(ID3D11Device* device, Vertex vertices[], unsigned int verticesSize, X
 	shader = DXShader(device, quadVertexShader, ARRAYSIZE(quadVertexShader), quadPixelShader, ARRAYSIZE(quadPixelShader), inputElementDesc, ARRAYSIZE(inputElementDesc));
 }
 
-void Mesh::update(ID3D11DeviceContext* context, XMFLOAT4X4 viewProjection) {
+void Mesh::update(ID3D11DeviceContext* context, XMFLOAT4X4 view, XMFLOAT4X4 projection) {
 	MeshConstants meshConstants{};
-	meshConstants.viewProjection = viewProjection;
+	meshConstants.view = view;
+	meshConstants.projection = projection;
 
 	XMFLOAT4X4 world;
 	XMStoreFloat4x4(&world, XMMatrixIdentity());
 
 	XMMATRIX worldFX = XMLoadFloat4x4(&world);
-	worldFX = XMMatrixMultiply(worldFX, XMMatrixTranslation(translation.x, translation.y, translation.z));
-	worldFX = XMMatrixMultiply(worldFX, XMMatrixRotationX(XMConvertToRadians(rotation.x)));
-	worldFX = XMMatrixMultiply(worldFX, XMMatrixRotationY(XMConvertToRadians(rotation.y)));
-	worldFX = XMMatrixMultiply(worldFX, XMMatrixRotationZ(XMConvertToRadians(rotation.z)));
-	worldFX = XMMatrixMultiply(worldFX, XMMatrixScaling(scale.x, scale.y, scale.z));
+	worldFX = XMMatrixMultiplyTranspose(worldFX, XMMatrixTranslation(translation.x, translation.y, translation.z));
+	worldFX = XMMatrixMultiplyTranspose(worldFX, XMMatrixRotationX(XMConvertToRadians(rotation.x)));
+	worldFX = XMMatrixMultiplyTranspose(worldFX, XMMatrixRotationY(XMConvertToRadians(rotation.y)));
+	worldFX = XMMatrixMultiplyTranspose(worldFX, XMMatrixRotationZ(XMConvertToRadians(rotation.z)));
+	worldFX = XMMatrixMultiplyTranspose(worldFX, XMMatrixScaling(scale.x, scale.y, scale.z));
 
 	XMStoreFloat4x4(&world, worldFX);
 	meshConstants.world = world;

@@ -5,7 +5,8 @@ struct VS_INPUT {
 
 cbuffer ModelViewProjectionConstantBuffer : register(b0) {
 	matrix world;
-	matrix viewProjection;
+	matrix view;
+	matrix projection;
 };
 
 struct VS_OUTPUT {
@@ -18,7 +19,8 @@ VS_OUTPUT main(float3 pos: POSITION, float3 colour: COLOR0) {
 
 	float4 outPos = float4(pos, 1.0f);
 	outPos = mul(outPos, world);
-	outPos = mul(outPos, viewProjection);
+	outPos = mul(outPos, view);
+	outPos = mul(outPos, projection);
 	
 	output.position = outPos;
 	output.colour = float4(colour, 1.0f);

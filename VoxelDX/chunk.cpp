@@ -14,7 +14,13 @@ Chunk::Chunk (ID3D11Device* device, XMFLOAT3 position)
 			for (int z = 0; z < CHUNK_SIZE.z; z++) {
 				Block block{};
 
-				block.colour = blockColour;
+				if (x % 2 == 0 && y % 2 == 0) {
+					block.colour = blockColour;
+				}
+				else {
+					block.colour = { 1.0f, 0.0f, 0.0f };
+				}
+
 				block.isAir = false;
 				block.isVisible = true;
 
@@ -37,11 +43,11 @@ Chunk::Chunk (ID3D11Device* device, XMFLOAT3 position)
 					XMStoreFloat3(&pos, posV);
 
 					XMMATRIX world = XMMatrixIdentity();
-					world = XMMatrixMultiply(world, XMMatrixTranslation(pos.x, pos.y, pos.z));
-					world = XMMatrixMultiply(world, XMMatrixRotationX(XMConvertToRadians(0.0f)));
-					world = XMMatrixMultiply(world, XMMatrixRotationY(XMConvertToRadians(0.0f)));
-					world = XMMatrixMultiply(world, XMMatrixRotationZ(XMConvertToRadians(0.0f)));
-					world = XMMatrixMultiply(world, XMMatrixScaling(1.0f, 2.0f, 1.0f));
+					world = XMMatrixMultiplyTranspose(world, XMMatrixTranslation(pos.x, pos.y, pos.z));
+					world = XMMatrixMultiplyTranspose(world, XMMatrixRotationX(XMConvertToRadians(0.0f)));
+					world = XMMatrixMultiplyTranspose(world, XMMatrixRotationY(XMConvertToRadians(0.0f)));
+					world = XMMatrixMultiplyTranspose(world, XMMatrixRotationZ(XMConvertToRadians(0.0f)));
+					world = XMMatrixMultiplyTranspose(world, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 
 					posV = XMVector3Transform(posV, world);
 					XMStoreFloat3(&pos, posV);
@@ -190,9 +196,10 @@ Chunk::Chunk (ID3D11Device* device, XMFLOAT3 position)
 	);
 }
 
-void Chunk::update(ID3D11DeviceContext* context, XMFLOAT4X4 viewProjection) {
-	mesh.update(context, viewProjection);
+void Chunk::update(ID3D11DeviceContext* context, XMFLOAT4X4 view, XMFLOAT4X4 projection) {
+	mesh.update(context, view, projection);
 }
+
 void Chunk::draw(ID3D11DeviceContext* context) {
 	mesh.draw(context);
 }

@@ -5,7 +5,7 @@
 DXRenderer::DXRenderer() {}
 
 DXRenderer::DXRenderer(HINSTANCE instance, HWND window)
-	: instance(instance), window(window), camera({0.0f, 100.0f, -50.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0}) {
+	: instance(instance), window(window), camera({0.0f, 0.0f, -60.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0}) {
 	D3D_FEATURE_LEVEL levels[] = {
 		D3D_FEATURE_LEVEL_11_1
 	};
@@ -126,8 +126,9 @@ void DXRenderer::update()
 	int windowHeight = abs(windowRect.bottom - windowRect.top);
 
 	// Get the View Project Matrix
-	XMFLOAT4X4 viewProjection = camera.getViewPerspectiveMatrix(45.0f, windowWidth, windowHeight);
-	chunk.update(context.Get(), viewProjection);
+	XMFLOAT4X4 projection = camera.getProjectionMatrix(45.0f, windowWidth, windowHeight);
+	XMFLOAT4X4 view = camera.getViewMatrix();
+	chunk.update(context.Get(), view, projection);
 }
 
 void DXRenderer::render() {

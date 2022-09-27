@@ -7,7 +7,7 @@ Camera::Camera(XMVECTOR eye, XMVECTOR at, XMVECTOR up)
 	
 }
 
-XMFLOAT4X4 Camera::getViewPerspectiveMatrix(float fov, float width, float height) {
+XMFLOAT4X4 Camera::getProjectionMatrix(float fov, float width, float height) {
 	float aspectRatio = width / height;
 	float fovAngleY = fov * XM_PI / 180.0f;
 
@@ -15,20 +15,17 @@ XMFLOAT4X4 Camera::getViewPerspectiveMatrix(float fov, float width, float height
 		fovAngleY /= aspectRatio;
 	}
 
-	XMFLOAT4X4 view;
-	XMStoreFloat4x4(&view, XMMatrixTranspose(XMMatrixLookAtRH(eye, at, up)));
-
 	XMFLOAT4X4 projection;
 	XMStoreFloat4x4(&projection, XMMatrixTranspose(XMMatrixPerspectiveFovRH(fovAngleY, aspectRatio, 0.1, 100.0f)));
 
-	FXMMATRIX viewFX = XMLoadFloat4x4(&view);
-	FXMMATRIX projectionFX = XMLoadFloat4x4(&projection);
+	return projection;
+}
 
-	XMFLOAT4X4 viewProjection;
-	// Determine the correct multiplication order for this...
-	XMStoreFloat4x4(&viewProjection, XMMatrixMultiply(projectionFX, viewFX));
+XMFLOAT4X4 Camera::getViewMatrix() {
+	XMFLOAT4X4 view;
+	XMStoreFloat4x4(&view, XMMatrixTranspose(XMMatrixLookAtRH(eye, at, up)));
 
-	return viewProjection;
+	return view;
 }
 
 void Camera::set(XMVECTOR eye, XMVECTOR at, XMVECTOR up) {

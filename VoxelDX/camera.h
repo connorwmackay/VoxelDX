@@ -12,7 +12,8 @@ public:
 	Camera();
 	Camera(XMVECTOR eye, XMVECTOR at, XMVECTOR up);
 
-	XMFLOAT4X4 getViewPerspectiveMatrix(float fov, float width, float height);
+	XMFLOAT4X4 getProjectionMatrix(float fov, float width, float height);
+	XMFLOAT4X4 getViewMatrix();
 
 	void set(XMVECTOR eye, XMVECTOR at, XMVECTOR up);
 };

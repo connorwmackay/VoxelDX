@@ -28,7 +28,7 @@ public:
 
 	void setVisibleBlocks();
 
-	void update(ID3D11DeviceContext* context, XMFLOAT4X4 viewProjection);
+	void update(ID3D11DeviceContext* context, XMFLOAT4X4 view, XMFLOAT4X4 projection);
 	void draw(ID3D11DeviceContext* context);
 };
 
