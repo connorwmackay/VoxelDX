@@ -5,7 +5,7 @@
 DXRenderer::DXRenderer() {}
 
 DXRenderer::DXRenderer(HINSTANCE instance, HWND window)
-	: instance(instance), window(window), camera({0.0f, 0.0f, -60.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0}) {
+	: instance(instance), window(window), camera({8.0f, 8.0f, 40}, {45.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0}) {
 	D3D_FEATURE_LEVEL levels[] = {
 		D3D_FEATURE_LEVEL_11_1
 	};
@@ -101,11 +101,24 @@ DXRenderer::DXRenderer(HINSTANCE instance, HWND window)
 		&depthStencilView
 	)));
 
+	D3D11_RASTERIZER_DESC rasterizerDesc;
+	ZeroMemory(&rasterizerDesc, sizeof(D3D11_RASTERIZER_DESC));
+	rasterizerDesc.AntialiasedLineEnable = TRUE;
+	rasterizerDesc.CullMode = D3D11_CULL_FRONT;
+	rasterizerDesc.ScissorEnable = FALSE;
+	rasterizerDesc.DepthClipEnable = TRUE;
+	rasterizerDesc.MultisampleEnable = TRUE;
+	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
+
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerState;
+	device->CreateRasterizerState(&rasterizerDesc, rasterizerState.GetAddressOf());
+	context->RSSetState(rasterizerState.Get());
+
 	ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
 	viewport.Height = (float) backBufferDesc.Height;
 	viewport.Width = (float) backBufferDesc.Width;
 	viewport.MinDepth = 0;
-	viewport.MaxDepth = 0;
+	viewport.MaxDepth = 1.0f;
 
 	context->RSSetViewports(1, &viewport);
 	context->OMSetRenderTargets(

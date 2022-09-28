@@ -34,152 +34,141 @@ Chunk::Chunk (ID3D11Device* device, XMFLOAT3 position)
 	// Build the Mesh
 	std::vector<Vertex> chunkVertices = std::vector<Vertex>();
 
-	for (int x = 0; x < CHUNK_SIZE.x; x++) {
-		for (int y = 0; y < CHUNK_SIZE.y; y++) {
+		for (int x = 0; x < CHUNK_SIZE.x; x++) {
+			for (int y = 0; y < CHUNK_SIZE.y; y++) {
 			for (int z = 0; z < CHUNK_SIZE.z; z++) {
 				if (!blocks[x][y][z].isAir && blocks[x][y][z].isVisible) {
-					XMVECTOR posV = { (float)x, (float)y, (float)z };
-					XMFLOAT3 pos;
-					XMStoreFloat3(&pos, posV);
-
-					XMMATRIX world = XMMatrixIdentity();
-					world = XMMatrixMultiplyTranspose(world, XMMatrixTranslation(pos.x, pos.y, pos.z));
-					world = XMMatrixMultiplyTranspose(world, XMMatrixRotationX(XMConvertToRadians(0.0f)));
-					world = XMMatrixMultiplyTranspose(world, XMMatrixRotationY(XMConvertToRadians(0.0f)));
-					world = XMMatrixMultiplyTranspose(world, XMMatrixRotationZ(XMConvertToRadians(0.0f)));
-					world = XMMatrixMultiplyTranspose(world, XMMatrixScaling(1.0f, 1.0f, 1.0f));
-
-					posV = XMVector3Transform(posV, world);
-					XMStoreFloat3(&pos, posV);
-					
-					float xPos = pos.x;
-					float yPos = pos.y;
-					float zPos = pos.z;
+					float xPos = x + 0.5f;
+					float xNeg = x - 0.5f;
+					float yPos = y + 0.5f;
+					float yNeg = y - 0.5f;
+					float zPos = z + 0.5f;
+					float zNeg = z - 0.5f;
 
 					/* -X */
 					chunkVertices.push_back({
-					XMFLOAT3(-xPos,-yPos,-zPos), blocks[x][y][z].colour, // 0
+					XMFLOAT3(xNeg,yNeg,zNeg), blocks[x][y][z].colour, // 0
 					});
 					chunkVertices.push_back({
-						XMFLOAT3(-xPos, yPos,-zPos), blocks[x][y][z].colour, // 2
+						XMFLOAT3(xNeg, yPos,zNeg), blocks[x][y][z].colour, // 2
 						});
 					chunkVertices.push_back({
-						XMFLOAT3(-xPos,-yPos, zPos), blocks[x][y][z].colour,// 1
+						XMFLOAT3(xNeg,yNeg, zPos), blocks[x][y][z].colour,// 1
 					});
 
 					chunkVertices.push_back({
-						XMFLOAT3(-xPos,-yPos, zPos), blocks[x][y][z].colour,// 1
+						XMFLOAT3(xNeg,yNeg, zPos), blocks[x][y][z].colour,// 1
 					});
 					chunkVertices.push_back({
-						XMFLOAT3(-xPos, yPos,-zPos), blocks[x][y][z].colour, // 2
+						XMFLOAT3(xNeg, yPos,zNeg), blocks[x][y][z].colour, // 2
 					});
 					chunkVertices.push_back({
-						XMFLOAT3(-xPos, yPos, zPos), blocks[x][y][z].colour, // 3
+						XMFLOAT3(xNeg, yPos, zPos), blocks[x][y][z].colour, // 3
 					});
 
 					/* +X */
 					chunkVertices.push_back({
-						XMFLOAT3(xPos,-yPos,-zPos), blocks[x][y][z].colour, // 4
+						XMFLOAT3(xPos,yNeg,zNeg), blocks[x][y][z].colour, // 4
 					});
 					chunkVertices.push_back({
-						XMFLOAT3(xPos,-yPos, zPos), blocks[x][y][z].colour, // 5
+						XMFLOAT3(xPos,yNeg, zPos), blocks[x][y][z].colour, // 5
 					});
 					chunkVertices.push_back({
-						XMFLOAT3(xPos, yPos,-zPos), blocks[x][y][z].colour, // 6
+						XMFLOAT3(xPos, yPos,zNeg), blocks[x][y][z].colour, // 6
 					});
 
 					chunkVertices.push_back({
-						XMFLOAT3(xPos,-yPos, zPos), blocks[x][y][z].colour, // 5
+						XMFLOAT3(xPos,yNeg, zPos), blocks[x][y][z].colour, // 5
 					});
 					chunkVertices.push_back({
 						XMFLOAT3(xPos, yPos, zPos), blocks[x][y][z].colour, // 7
 					});
 					chunkVertices.push_back({
-						XMFLOAT3(xPos, yPos,-zPos), blocks[x][y][z].colour, // 6
+						XMFLOAT3(xPos, yPos,zNeg), blocks[x][y][z].colour, // 6
 					});
 
 					/* -Y */
 					chunkVertices.push_back({
-					XMFLOAT3(-xPos,-yPos,-zPos), blocks[x][y][z].colour, // 0
+					XMFLOAT3(xNeg,yNeg,zNeg), blocks[x][y][z].colour, // 0
 					});
 					chunkVertices.push_back({
-						XMFLOAT3(-xPos,-yPos, zPos), blocks[x][y][z].colour,// 1
+						XMFLOAT3(xNeg,yNeg, zPos), blocks[x][y][z].colour,// 1
 					});
 					chunkVertices.push_back({
-						XMFLOAT3(xPos,-yPos, zPos), blocks[x][y][z].colour, // 5
+						XMFLOAT3(xPos,yNeg, zPos), blocks[x][y][z].colour, // 5
 					});
 
 					chunkVertices.push_back({
-					XMFLOAT3(-xPos,-yPos,-zPos), blocks[x][y][z].colour, // 0
+					XMFLOAT3(xNeg,yNeg,zNeg), blocks[x][y][z].colour, // 0
 					});
 					chunkVertices.push_back({
-						XMFLOAT3(xPos,-yPos, zPos), blocks[x][y][z].colour, // 5
+						XMFLOAT3(xPos,yNeg, zPos), blocks[x][y][z].colour, // 5
 					});
 					chunkVertices.push_back({
-						XMFLOAT3(xPos,-yPos,-zPos), blocks[x][y][z].colour, // 4
+						XMFLOAT3(xPos,yNeg,zNeg), blocks[x][y][z].colour, // 4
 					});
 
 					/* +Y */
 					chunkVertices.push_back({
-						XMFLOAT3(-xPos, yPos,-zPos), blocks[x][y][z].colour, // 2
+						XMFLOAT3(xNeg, yPos,zNeg), blocks[x][y][z].colour, // 2
 					});
 					chunkVertices.push_back({
-						XMFLOAT3(xPos, yPos,-zPos), blocks[x][y][z].colour, // 6
+						XMFLOAT3(xPos, yPos,zNeg), blocks[x][y][z].colour, // 6
 					});
 					chunkVertices.push_back({
 						XMFLOAT3(xPos, yPos, zPos), blocks[x][y][z].colour, // 7
 					});
 
 					chunkVertices.push_back({
-						XMFLOAT3(-xPos, yPos,-zPos), blocks[x][y][z].colour, // 2
+						XMFLOAT3(xNeg, yPos,zNeg), blocks[x][y][z].colour, // 2
 					});
 					chunkVertices.push_back({
 						XMFLOAT3(xPos, yPos, zPos), blocks[x][y][z].colour, // 7
 					});
 					chunkVertices.push_back({
-						XMFLOAT3(-xPos, yPos, zPos), blocks[x][y][z].colour, // 3
+						XMFLOAT3(xNeg, yPos, zPos), blocks[x][y][z].colour, // 3
 					});
 
 					/* -Z */
 					chunkVertices.push_back({
-					XMFLOAT3(-xPos,-yPos,-zPos), blocks[x][y][z].colour, // 0
+					XMFLOAT3(xNeg,yNeg,zNeg), blocks[x][y][z].colour, // 0
 					});
 					chunkVertices.push_back({
-						XMFLOAT3(xPos,-yPos,-zPos), blocks[x][y][z].colour, // 4
+						XMFLOAT3(xPos,yNeg,zNeg), blocks[x][y][z].colour, // 4
 					});
 					chunkVertices.push_back({
-						XMFLOAT3(xPos, yPos,-zPos), blocks[x][y][z].colour, // 6
+						XMFLOAT3(xPos, yPos,zNeg), blocks[x][y][z].colour, // 6
 					});
 
 					chunkVertices.push_back({
-					XMFLOAT3(-xPos,-yPos,-zPos), blocks[x][y][z].colour, // 0
+					XMFLOAT3(xNeg,yNeg,zNeg), blocks[x][y][z].colour, // 0
 					});
 					chunkVertices.push_back({
-						XMFLOAT3(xPos, yPos,-zPos), blocks[x][y][z].colour, // 6
+						XMFLOAT3(xPos, yPos,zNeg), blocks[x][y][z].colour, // 6
 					});
 					chunkVertices.push_back({
-						XMFLOAT3(-xPos, yPos,-zPos), blocks[x][y][z].colour, // 2
+						XMFLOAT3(xNeg, yPos,zNeg), blocks[x][y][z].colour, // 2
 					});
 
 					/* +Z */
 					chunkVertices.push_back({
-						XMFLOAT3(-xPos,-yPos, zPos), blocks[x][y][z].colour,// 1
+						XMFLOAT3(xNeg,yNeg, zPos), blocks[x][y][z].colour,// 1
 					});
 					chunkVertices.push_back({
-						XMFLOAT3(-xPos, yPos, zPos), blocks[x][y][z].colour, // 3
+						XMFLOAT3(xNeg, yPos, zPos), blocks[x][y][z].colour, // 3
 					});
 					chunkVertices.push_back({
 						XMFLOAT3(xPos, yPos, zPos), blocks[x][y][z].colour, // 7
 					});
 
 					chunkVertices.push_back({
-						XMFLOAT3(-xPos,-yPos, zPos), blocks[x][y][z].colour,// 1
+						XMFLOAT3(xNeg,yNeg, zPos), blocks[x][y][z].colour,// 1
 					});
 					chunkVertices.push_back({
 						XMFLOAT3(xPos, yPos, zPos), blocks[x][y][z].colour, // 7
 					});
 					chunkVertices.push_back({
-						XMFLOAT3(xPos,-yPos, zPos), blocks[x][y][z].colour, // 5
+						XMFLOAT3(xPos,yNeg, zPos), blocks[x][y][z].colour, // 5
 					});
 				}
 			}
@@ -216,11 +205,14 @@ void Chunk::setVisibleBlocks() {
 					bool shouldBeVisible = false;
 					for (int ax = -1; ax <= 1; ax++) {
 						for (int ay = -1; ay <= 1; ay++) {
-							for (int az = 0; az <= 3; az++) {
-								if ((x + ax) >= 0 && (x + ax) <= 15 && (y + ay) >= 0 && (y + ay) <= 15 && (z + az) >= 0 && (z + az) <= 15)
-								{
-									if (blocks[x + ax][y + ay][z + az].isAir) {
-										shouldBeVisible = true;
+							for (int az = -1; az <= 1; az++) {
+
+								if (ax != x && ay != y && az != z) {
+									if ((x + ax) >= 0 && (x + ax) <= 15 && (y + ay) >= 0 && (y + ay) <= 15 && (z + az) >= 0 && (z + az) <= 15)
+									{
+										if (blocks[x + ax][y + ay][z + az].isAir) {
+											shouldBeVisible = true;
+										}
 									}
 								}
 							}

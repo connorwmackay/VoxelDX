@@ -22,6 +22,7 @@ protected:
 	XMFLOAT3 position;
 	Mesh mesh;
 	Block blocks[(int)CHUNK_SIZE.x][(int)CHUNK_SIZE.y][(int)CHUNK_SIZE.z];
+
 public:
 	Chunk();
 	Chunk(ID3D11Device* device, XMFLOAT3 position);
