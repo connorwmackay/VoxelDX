@@ -23,6 +23,7 @@ Chunk::Chunk (ID3D11Device* device, XMFLOAT3 position)
 
 				block.isAir = false;
 				block.isVisible = true;
+				block.visibleBlockFaces = std::vector<BlockFaces>();
 
 				blocks[x][y][z] = block;
 			}
@@ -45,131 +46,154 @@ Chunk::Chunk (ID3D11Device* device, XMFLOAT3 position)
 					float zPos = z + 0.5f;
 					float zNeg = z - 0.5f;
 
-					/* -X */
-					chunkVertices.push_back({
-					XMFLOAT3(xNeg,yNeg,zNeg), blocks[x][y][z].colour, // 0
-					});
-					chunkVertices.push_back({
-						XMFLOAT3(xNeg, yPos,zNeg), blocks[x][y][z].colour, // 2
-						});
-					chunkVertices.push_back({
-						XMFLOAT3(xNeg,yNeg, zPos), blocks[x][y][z].colour,// 1
-					});
+					for (const BlockFaces& face : blocks[x][y][z].visibleBlockFaces) {
+						switch (face) {
+						case BlockFaces::LEFT:
+							{
+								/* -X */
+								chunkVertices.push_back({
+								XMFLOAT3(xNeg,yNeg,zNeg), blocks[x][y][z].colour, // 0
+									});
+								chunkVertices.push_back({
+									XMFLOAT3(xNeg, yPos,zNeg), blocks[x][y][z].colour, // 2
+									});
+								chunkVertices.push_back({
+									XMFLOAT3(xNeg,yNeg, zPos), blocks[x][y][z].colour,// 1
+									});
 
-					chunkVertices.push_back({
-						XMFLOAT3(xNeg,yNeg, zPos), blocks[x][y][z].colour,// 1
-					});
-					chunkVertices.push_back({
-						XMFLOAT3(xNeg, yPos,zNeg), blocks[x][y][z].colour, // 2
-					});
-					chunkVertices.push_back({
-						XMFLOAT3(xNeg, yPos, zPos), blocks[x][y][z].colour, // 3
-					});
+								chunkVertices.push_back({
+									XMFLOAT3(xNeg,yNeg, zPos), blocks[x][y][z].colour,// 1
+									});
+								chunkVertices.push_back({
+									XMFLOAT3(xNeg, yPos,zNeg), blocks[x][y][z].colour, // 2
+									});
+								chunkVertices.push_back({
+									XMFLOAT3(xNeg, yPos, zPos), blocks[x][y][z].colour, // 3
+									});
+							}
+							break;
+						case BlockFaces::RIGHT:
+							{
+								/* +X */
+								chunkVertices.push_back({
+									XMFLOAT3(xPos,yNeg,zNeg), blocks[x][y][z].colour, // 4
+									});
+								chunkVertices.push_back({
+									XMFLOAT3(xPos,yNeg, zPos), blocks[x][y][z].colour, // 5
+									});
+								chunkVertices.push_back({
+									XMFLOAT3(xPos, yPos,zNeg), blocks[x][y][z].colour, // 6
+									});
 
-					/* +X */
-					chunkVertices.push_back({
-						XMFLOAT3(xPos,yNeg,zNeg), blocks[x][y][z].colour, // 4
-					});
-					chunkVertices.push_back({
-						XMFLOAT3(xPos,yNeg, zPos), blocks[x][y][z].colour, // 5
-					});
-					chunkVertices.push_back({
-						XMFLOAT3(xPos, yPos,zNeg), blocks[x][y][z].colour, // 6
-					});
+								chunkVertices.push_back({
+									XMFLOAT3(xPos,yNeg, zPos), blocks[x][y][z].colour, // 5
+									});
+								chunkVertices.push_back({
+									XMFLOAT3(xPos, yPos, zPos), blocks[x][y][z].colour, // 7
+									});
+								chunkVertices.push_back({
+									XMFLOAT3(xPos, yPos,zNeg), blocks[x][y][z].colour, // 6
+									});
+							}
+							break;
+						case BlockFaces::BOTTOM:
+							{
+								/* -Y */
+								chunkVertices.push_back({
+								XMFLOAT3(xNeg,yNeg,zNeg), blocks[x][y][z].colour, // 0
+									});
+								chunkVertices.push_back({
+									XMFLOAT3(xNeg,yNeg, zPos), blocks[x][y][z].colour,// 1
+									});
+								chunkVertices.push_back({
+									XMFLOAT3(xPos,yNeg, zPos), blocks[x][y][z].colour, // 5
+									});
 
-					chunkVertices.push_back({
-						XMFLOAT3(xPos,yNeg, zPos), blocks[x][y][z].colour, // 5
-					});
-					chunkVertices.push_back({
-						XMFLOAT3(xPos, yPos, zPos), blocks[x][y][z].colour, // 7
-					});
-					chunkVertices.push_back({
-						XMFLOAT3(xPos, yPos,zNeg), blocks[x][y][z].colour, // 6
-					});
+								chunkVertices.push_back({
+								XMFLOAT3(xNeg,yNeg,zNeg), blocks[x][y][z].colour, // 0
+									});
+								chunkVertices.push_back({
+									XMFLOAT3(xPos,yNeg, zPos), blocks[x][y][z].colour, // 5
+									});
+								chunkVertices.push_back({
+									XMFLOAT3(xPos,yNeg,zNeg), blocks[x][y][z].colour, // 4
+									});
+							}
+							break;
+						case BlockFaces::TOP:
+							{
+								/* +Y */
+								chunkVertices.push_back({
+									XMFLOAT3(xNeg, yPos,zNeg), blocks[x][y][z].colour, // 2
+									});
+								chunkVertices.push_back({
+									XMFLOAT3(xPos, yPos,zNeg), blocks[x][y][z].colour, // 6
+									});
+								chunkVertices.push_back({
+									XMFLOAT3(xPos, yPos, zPos), blocks[x][y][z].colour, // 7
+									});
 
-					/* -Y */
-					chunkVertices.push_back({
-					XMFLOAT3(xNeg,yNeg,zNeg), blocks[x][y][z].colour, // 0
-					});
-					chunkVertices.push_back({
-						XMFLOAT3(xNeg,yNeg, zPos), blocks[x][y][z].colour,// 1
-					});
-					chunkVertices.push_back({
-						XMFLOAT3(xPos,yNeg, zPos), blocks[x][y][z].colour, // 5
-					});
+								chunkVertices.push_back({
+									XMFLOAT3(xNeg, yPos,zNeg), blocks[x][y][z].colour, // 2
+									});
+								chunkVertices.push_back({
+									XMFLOAT3(xPos, yPos, zPos), blocks[x][y][z].colour, // 7
+									});
+								chunkVertices.push_back({
+									XMFLOAT3(xNeg, yPos, zPos), blocks[x][y][z].colour, // 3
+									});
+							}
+							break;
+						case BlockFaces::BACK:
+							{
+								/* -Z */
+								chunkVertices.push_back({
+								XMFLOAT3(xNeg,yNeg,zNeg), blocks[x][y][z].colour, // 0
+									});
+								chunkVertices.push_back({
+									XMFLOAT3(xPos,yNeg,zNeg), blocks[x][y][z].colour, // 4
+									});
+								chunkVertices.push_back({
+									XMFLOAT3(xPos, yPos,zNeg), blocks[x][y][z].colour, // 6
+									});
 
-					chunkVertices.push_back({
-					XMFLOAT3(xNeg,yNeg,zNeg), blocks[x][y][z].colour, // 0
-					});
-					chunkVertices.push_back({
-						XMFLOAT3(xPos,yNeg, zPos), blocks[x][y][z].colour, // 5
-					});
-					chunkVertices.push_back({
-						XMFLOAT3(xPos,yNeg,zNeg), blocks[x][y][z].colour, // 4
-					});
+								chunkVertices.push_back({
+								XMFLOAT3(xNeg,yNeg,zNeg), blocks[x][y][z].colour, // 0
+									});
+								chunkVertices.push_back({
+									XMFLOAT3(xPos, yPos,zNeg), blocks[x][y][z].colour, // 6
+									});
+								chunkVertices.push_back({
+									XMFLOAT3(xNeg, yPos,zNeg), blocks[x][y][z].colour, // 2
+									});
+							}
+							break;
+						case BlockFaces::FRONT:
+							{
+								/* +Z */
+								chunkVertices.push_back({
+									XMFLOAT3(xNeg,yNeg, zPos), blocks[x][y][z].colour,// 1
+									});
+								chunkVertices.push_back({
+									XMFLOAT3(xNeg, yPos, zPos), blocks[x][y][z].colour, // 3
+									});
+								chunkVertices.push_back({
+									XMFLOAT3(xPos, yPos, zPos), blocks[x][y][z].colour, // 7
+									});
 
-					/* +Y */
-					chunkVertices.push_back({
-						XMFLOAT3(xNeg, yPos,zNeg), blocks[x][y][z].colour, // 2
-					});
-					chunkVertices.push_back({
-						XMFLOAT3(xPos, yPos,zNeg), blocks[x][y][z].colour, // 6
-					});
-					chunkVertices.push_back({
-						XMFLOAT3(xPos, yPos, zPos), blocks[x][y][z].colour, // 7
-					});
-
-					chunkVertices.push_back({
-						XMFLOAT3(xNeg, yPos,zNeg), blocks[x][y][z].colour, // 2
-					});
-					chunkVertices.push_back({
-						XMFLOAT3(xPos, yPos, zPos), blocks[x][y][z].colour, // 7
-					});
-					chunkVertices.push_back({
-						XMFLOAT3(xNeg, yPos, zPos), blocks[x][y][z].colour, // 3
-					});
-
-					/* -Z */
-					chunkVertices.push_back({
-					XMFLOAT3(xNeg,yNeg,zNeg), blocks[x][y][z].colour, // 0
-					});
-					chunkVertices.push_back({
-						XMFLOAT3(xPos,yNeg,zNeg), blocks[x][y][z].colour, // 4
-					});
-					chunkVertices.push_back({
-						XMFLOAT3(xPos, yPos,zNeg), blocks[x][y][z].colour, // 6
-					});
-
-					chunkVertices.push_back({
-					XMFLOAT3(xNeg,yNeg,zNeg), blocks[x][y][z].colour, // 0
-					});
-					chunkVertices.push_back({
-						XMFLOAT3(xPos, yPos,zNeg), blocks[x][y][z].colour, // 6
-					});
-					chunkVertices.push_back({
-						XMFLOAT3(xNeg, yPos,zNeg), blocks[x][y][z].colour, // 2
-					});
-
-					/* +Z */
-					chunkVertices.push_back({
-						XMFLOAT3(xNeg,yNeg, zPos), blocks[x][y][z].colour,// 1
-					});
-					chunkVertices.push_back({
-						XMFLOAT3(xNeg, yPos, zPos), blocks[x][y][z].colour, // 3
-					});
-					chunkVertices.push_back({
-						XMFLOAT3(xPos, yPos, zPos), blocks[x][y][z].colour, // 7
-					});
-
-					chunkVertices.push_back({
-						XMFLOAT3(xNeg,yNeg, zPos), blocks[x][y][z].colour,// 1
-					});
-					chunkVertices.push_back({
-						XMFLOAT3(xPos, yPos, zPos), blocks[x][y][z].colour, // 7
-					});
-					chunkVertices.push_back({
-						XMFLOAT3(xPos,yNeg, zPos), blocks[x][y][z].colour, // 5
-					});
+								chunkVertices.push_back({
+									XMFLOAT3(xNeg,yNeg, zPos), blocks[x][y][z].colour,// 1
+									});
+								chunkVertices.push_back({
+									XMFLOAT3(xPos, yPos, zPos), blocks[x][y][z].colour, // 7
+									});
+								chunkVertices.push_back({
+									XMFLOAT3(xPos,yNeg, zPos), blocks[x][y][z].colour, // 5
+									});
+							}
+							break;
+						}
+					}
 				}
 			}
 		}
@@ -201,30 +225,91 @@ void Chunk::setVisibleBlocks() {
 			for (int z = 0; z < CHUNK_SIZE.z; z++) {
 				if (!blocks[x][y][z].isAir) {
 
+					Block& block = blocks[x][y][z];
+					block.visibleBlockFaces.clear();
+
 					// Loop through adjacent blocks...
 					bool shouldBeVisible = false;
-					for (int ax = -1; ax <= 1; ax++) {
-						for (int ay = -1; ay <= 1; ay++) {
-							for (int az = -1; az <= 1; az++) {
 
-								if (ax != x && ay != y && az != z) {
-									if ((x + ax) >= 0 && (x + ax) <= 15 && (y + ay) >= 0 && (y + ay) <= 15 && (z + az) >= 0 && (z + az) <= 15)
-									{
-										if (blocks[x + ax][y + ay][z + az].isAir) {
-											shouldBeVisible = true;
-										}
-									}
-								}
-							}
+					if (x-1 > 0 && x-1 < 15) // Left
+					{
+						if (blocks[x-1][y][z].isAir) {
+							shouldBeVisible = true;
+							block.visibleBlockFaces.push_back(BlockFaces::LEFT);
 						}
 					}
 
-					if (x == 0 || x == CHUNK_SIZE.x-1 || y == 0 || y == CHUNK_SIZE.y-1 || z == 0 || z == CHUNK_SIZE.z-1)
+					if (x + 1 > 0 && x + 1 < 15) // Right
+					{
+						if (blocks[x + 1][y][z].isAir) {
+							shouldBeVisible = true;
+							block.visibleBlockFaces.push_back(BlockFaces::RIGHT);
+						}
+					}
+
+					if (y - 1 > 0 && y - 1 < 15) // Bottom
+					{
+						if (blocks[x][y-1][z].isAir) {
+							shouldBeVisible = true;
+							block.visibleBlockFaces.push_back(BlockFaces::BOTTOM);
+						}
+					}
+
+					if (y + 1 > 0 && y + 1 < 15) // Top
+					{
+						if (blocks[x][y + 1][z].isAir) {
+							shouldBeVisible = true;
+							block.visibleBlockFaces.push_back(BlockFaces::TOP);
+						}
+					}
+
+					if (z - 1 > 0 && z - 1 < 15) // Back
+					{
+						if (blocks[x][y][z-1].isAir) {
+							shouldBeVisible = true;
+							block.visibleBlockFaces.push_back(BlockFaces::BACK);
+						}
+					}
+
+					if (z + 1 > 0 && z + 1 < 15) // Front
+					{
+						if (blocks[x][y][z + 1].isAir) {
+							shouldBeVisible = true;
+							block.visibleBlockFaces.push_back(BlockFaces::FRONT);
+						}
+					}
+
+					if (x == 0)
 					{
 						shouldBeVisible = true;
+						block.visibleBlockFaces.push_back(BlockFaces::LEFT);
+					}
+					if (x == CHUNK_SIZE.x-1) {
+						shouldBeVisible = true;
+						block.visibleBlockFaces.push_back(BlockFaces::RIGHT);
+					}
+					if (y == 0) {
+						shouldBeVisible = true;
+						block.visibleBlockFaces.push_back(BlockFaces::BOTTOM);
+					}
+
+					if (y == CHUNK_SIZE.y-1) {
+						shouldBeVisible = true;
+						block.visibleBlockFaces.push_back(BlockFaces::TOP);
+					}
+
+					if (z == 0) {
+						shouldBeVisible = true;
+						block.visibleBlockFaces.push_back(BlockFaces::BACK);
+					}
+
+					if (z == CHUNK_SIZE.z - 1) {
+						shouldBeVisible = true;
+						block.visibleBlockFaces.push_back(BlockFaces::FRONT);
 					}
 
 					blocks[x][y][z].isVisible = shouldBeVisible;
+
 					if (shouldBeVisible)
 					{
 						numVisible++;

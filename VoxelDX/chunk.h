@@ -9,11 +9,22 @@ using namespace DirectX;
 // TODO: Only half of Y blocks show up
 #define CHUNK_SIZE XMFLOAT3 (16.0f, 16.0f, 16.0f)
 
+enum class BlockFaces
+{
+	TOP,
+	BOTTOM,
+	FRONT,
+	BACK,
+	LEFT,
+	RIGHT
+};
+
 struct Block
 {
 	bool isAir;
 	bool isVisible;
 	XMFLOAT3 colour;
+	std::vector<BlockFaces> visibleBlockFaces;
 };
 
 class Chunk

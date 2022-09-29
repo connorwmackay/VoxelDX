@@ -104,7 +104,7 @@ DXRenderer::DXRenderer(HINSTANCE instance, HWND window)
 	D3D11_RASTERIZER_DESC rasterizerDesc;
 	ZeroMemory(&rasterizerDesc, sizeof(D3D11_RASTERIZER_DESC));
 	rasterizerDesc.AntialiasedLineEnable = TRUE;
-	rasterizerDesc.CullMode = D3D11_CULL_FRONT;
+	rasterizerDesc.CullMode = D3D11_CULL_NONE;
 	rasterizerDesc.ScissorEnable = FALSE;
 	rasterizerDesc.DepthClipEnable = TRUE;
 	rasterizerDesc.MultisampleEnable = TRUE;
