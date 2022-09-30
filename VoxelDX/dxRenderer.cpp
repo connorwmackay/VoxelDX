@@ -128,6 +128,7 @@ DXRenderer::DXRenderer(HINSTANCE instance, HWND window)
 	);
 
 	chunk = Chunk(device.Get(), {0.0f, 0.0f, 0.0f});
+	chunk.buildMesh();
 }
 
 void DXRenderer::update()

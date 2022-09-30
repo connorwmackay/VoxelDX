@@ -13,7 +13,7 @@ struct Vertex
 	DirectX::XMFLOAT3 colour;
 };
 
-typedef struct MeshConstants
+struct MeshConstants
 {
 	XMFLOAT4X4 world;
 	XMFLOAT4X4 view;
