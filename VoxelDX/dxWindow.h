@@ -17,6 +17,9 @@ protected:
 	static LRESULT CALLBACK WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam);
 public:
 	DXWindow(HINSTANCE instance, int showWindow);
+	LRESULT CALLBACK RealWindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam);
+
+	DXRenderer* GetRenderer();
 	void run();
 };
 

@@ -13,7 +13,9 @@ void Input::HandleKeyUpEvent(WPARAM key) {
 	for (auto& mapItem : keyMap)
 	{
 		if (mapItem.first == key) {
-			mapItem.second();
+			if (mapItem.second != nullptr) {
+				mapItem.second();
+			}
 		}
 	}
 }

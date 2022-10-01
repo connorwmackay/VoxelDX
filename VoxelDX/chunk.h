@@ -6,9 +6,8 @@
 
 using namespace DirectX;
 
-// TODO: Only half of Y blocks show up
-#define CHUNK_SIZE XMFLOAT3 (16.0f, 16.0f, 16.0f)
-#define VOXEL_SIZE 1.0f;
+#define CHUNK_SIZE XMFLOAT3 (160.0f, 160.0f, 160.0f)
+#define VOXEL_SIZE 0.1f;
 
 enum class BlockFaces
 {

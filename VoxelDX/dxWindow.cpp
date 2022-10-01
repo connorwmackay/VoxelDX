@@ -16,6 +16,7 @@ DXWindow::DXWindow(HINSTANCE instance, int showWindow)
 	wndClass.hInstance = instance;
 	wndClass.lpszClassName = CLASS_NAME;
 	wndClass.style = CS_HREDRAW | CS_VREDRAW;
+	wndClass.cbWndExtra = sizeof(DXWindow);
 	RegisterClass(&wndClass);
 
 	window = CreateWindowEx(
@@ -32,6 +33,8 @@ DXWindow::DXWindow(HINSTANCE instance, int showWindow)
 
 	ShowWindow(window, showWindow);
 	renderer = DXRenderer(instance, window);
+
+	SetWindowLongPtr(window, GWLP_USERDATA, (LONG_PTR)this);
 
 	inputManager.AddKeyCallback(0x57, &callAssert);
 }
@@ -54,14 +57,27 @@ void DXWindow::run() {
 	renderer.cleanup();
 }
 
-LRESULT CALLBACK DXWindow::WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
+DXRenderer* DXWindow::GetRenderer() {
+	return &renderer;
+}
+
+LRESULT CALLBACK DXWindow::RealWindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
 	if (ImGui_ImplWin32_WndProcHandler(window, msg, wParam, lParam))
 		return true;
 
+	int windowWidth;
+	int windowHeight;
+
 	switch (msg)
 	{
+	case WM_SIZE:
+		RECT windowSize;
+		GetWindowRect(window, &windowSize);
+		windowWidth = abs(windowSize.right - windowSize.left);
+		windowHeight = abs(windowSize.bottom - windowSize.top);
+		renderer.handleResize(windowWidth, windowHeight);
+		break;
 	case WM_QUIT:
-		DestroyWindow(window);
 	case WM_CLOSE:
 		DestroyWindow(window);
 	case WM_KEYUP:
@@ -69,6 +85,18 @@ LRESULT CALLBACK DXWindow::WindowProc(HWND window, UINT msg, WPARAM wParam, LPAR
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
+	default:
+		return DefWindowProc(window, msg, wParam, lParam);
+	}
+
+	return DefWindowProc(window, msg, wParam, lParam);
+}
+
+LRESULT CALLBACK DXWindow::WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
+	DXWindow* dxWindow = (DXWindow*) GetWindowLongPtr(window, GWLP_USERDATA);
+
+	if (dxWindow) {
+		return dxWindow->RealWindowProc(window, msg, wParam, lParam);
 	}
 
 	return DefWindowProc(window, msg, wParam, lParam);

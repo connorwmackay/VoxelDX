@@ -61,6 +61,8 @@ DXRenderer::DXRenderer(HINSTANCE instance, HWND window)
 
 	assert(SUCCEEDED(hRes));
 
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
+
 	hRes = swapChain->GetBuffer(
 		0,
 		__uuidof(ID3D11Texture2D),
@@ -163,6 +165,7 @@ DXRenderer::DXRenderer(HINSTANCE instance, HWND window)
 	swapChain->Present(vsyncOn, 0);
 
 	chunk = Chunk(device.Get(), context.Get(), { 0.0f, 0.0f, 0.0f });
+	hasBeenCreated = true;
 }
 
 void DXRenderer::update()
@@ -252,4 +255,71 @@ void DXRenderer::cleanup()
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
+}
+
+void DXRenderer::handleResize(int width, int height) {
+	if (width != 0 && height != 0 && hasBeenCreated) {
+		context->OMSetRenderTargets(0, 0, 0);
+		context->ClearState();
+		renderTargetView->Release();
+		depthStencilView->Release();
+		depthStencil->Release();
+
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
+
+		HRESULT result;
+		result = swapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING);
+
+		result = swapChain->GetBuffer(
+			0,
+			__uuidof(ID3D11Texture2D),
+			(void**)&backBuffer
+		);
+
+		assert(SUCCEEDED(result));
+
+		result = device->CreateRenderTargetView(
+			backBuffer.Get(),
+			nullptr,
+			renderTargetView.GetAddressOf()
+		);
+
+		assert(SUCCEEDED(result));
+
+		D3D11_TEXTURE2D_DESC backBufferDesc;
+		backBuffer->GetDesc(&backBufferDesc);
+
+		CD3D11_TEXTURE2D_DESC depthStencilDesc(
+			DXGI_FORMAT_D24_UNORM_S8_UINT,
+			static_cast<UINT> (backBufferDesc.Width),
+			static_cast<UINT> (backBufferDesc.Height),
+			1,
+			1,
+			D3D11_BIND_DEPTH_STENCIL
+		);
+
+		assert(SUCCEEDED(device->CreateTexture2D(
+			&depthStencilDesc,
+			nullptr,
+			depthStencil.GetAddressOf()
+		)));
+
+		CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc(D3D11_DSV_DIMENSION_TEXTURE2D);
+
+		assert(SUCCEEDED(device->CreateDepthStencilView(
+			depthStencil.Get(),
+			&depthStencilViewDesc,
+			depthStencilView.GetAddressOf()
+		)));
+
+		context->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), depthStencilView.Get());
+
+		viewport.Width = width;
+		viewport.Height = height;
+		viewport.MinDepth = 0.0f;
+		viewport.MaxDepth = 1.0f;
+		viewport.TopLeftX = 0;
+		viewport.TopLeftY = 0;
+		context->RSSetViewports(1, &viewport);
+	}
 }
