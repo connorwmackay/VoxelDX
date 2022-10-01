@@ -39,9 +39,15 @@ protected:
 	Camera camera;
 	Chunk chunk;
 
-	double lastFrameTime;
-	double lastFrameUpdateTime;
-	double lastFrameRenderTime;
+	double averageFrameTime;
+	double averageFrameRenderTime;
+	double averageFrameUpdateTime;
+
+	double totalFrameTime;
+	double totalFrameUpdateTime;
+	double totalFrameRenderTime;
+
+	int numFrames;
 public:
 	DXRenderer();
 	DXRenderer(HINSTANCE instance, HWND window);

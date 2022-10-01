@@ -7,7 +7,7 @@ DXRenderer::DXRenderer() {}
 
 DXRenderer::DXRenderer(HINSTANCE instance, HWND window)
 	: instance(instance), window(window), camera({8.0f, 8.0f, 40}, {45.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0}),
-	lastFrameTime(0.0f), lastFrameUpdateTime(0.0f), lastFrameRenderTime(0.0f) {
+	totalFrameTime(0.0f), totalFrameUpdateTime(0.0f), totalFrameRenderTime(0.0f) {
 	D3D_FEATURE_LEVEL levels[] = {
 		D3D_FEATURE_LEVEL_11_1
 	};
@@ -162,7 +162,7 @@ DXRenderer::DXRenderer(HINSTANCE instance, HWND window)
 	int vsyncOn = 0; // 0 for off, 1 for on
 	swapChain->Present(vsyncOn, 0);
 
-	chunk = Chunk(device.Get(), { 0.0f, 0.0f, 0.0f });
+	chunk = Chunk(device.Get(), context.Get(), { 0.0f, 0.0f, 0.0f });
 }
 
 void DXRenderer::update()
@@ -185,18 +185,17 @@ void DXRenderer::update()
 	ImGui::NewFrame();
 
 	ImGui::Begin("Performance");
-	ImGui::Text("Frame Time: %.5fms", lastFrameTime * 1000);
-	ImGui::Text("Render loop time: %.5fms", lastFrameRenderTime * 1000);
-	ImGui::Text("Update loop time: %.5fms", lastFrameUpdateTime * 1000);
-	ImGui::Text("FPS: %d", (int)(1.0f / lastFrameTime));
+	ImGui::Text("Frame Time: %.5fms", averageFrameTime * 1000);
+	ImGui::Text("Render loop time: %.5fms", averageFrameRenderTime * 1000);
+	ImGui::Text("Update loop time: %.5fms", averageFrameUpdateTime * 1000);
+	ImGui::Text("FPS: %d", (int)(1.0f / averageFrameTime));
 	ImGui::End();
 
 	auto updateEndTime = std::chrono::high_resolution_clock::now();
-	lastFrameUpdateTime = std::chrono::duration<double>(updateEndTime - updateStartTime).count();
+	totalFrameUpdateTime += std::chrono::duration<double>(updateEndTime - updateStartTime).count();
 }
 
 void DXRenderer::render() {
-	static int numFrames = 0;
 	auto renderStartTime = std::chrono::high_resolution_clock::now();
 	const float teal[] = { 0.098f, 0.439f, 0.439f, 1.000f };
 
@@ -228,13 +227,24 @@ void DXRenderer::render() {
 	auto renderEndTime = std::chrono::high_resolution_clock::now();
 	double gamePerformanceTime = std::chrono::duration<double>(renderEndTime - gamePerformanceStartTime).count();
 
-	if (gamePerformanceTime > 0.2f) {
-		lastFrameRenderTime = std::chrono::duration<double>(renderEndTime - renderStartTime).count();
-		lastFrameTime = lastFrameRenderTime + lastFrameUpdateTime;
-		gamePerformanceStartTime = std::chrono::high_resolution_clock::now();
-	}
+	totalFrameRenderTime += std::chrono::duration<double>(renderEndTime - renderStartTime).count();
 
 	numFrames++;
+
+	if (gamePerformanceTime > 0.2f) {
+		totalFrameTime = totalFrameRenderTime + totalFrameUpdateTime;
+
+		averageFrameTime = totalFrameTime / numFrames;
+		averageFrameRenderTime = totalFrameRenderTime / numFrames;
+		averageFrameUpdateTime = totalFrameUpdateTime / numFrames;
+
+		numFrames = 0;
+		totalFrameTime = 0.0f;
+		totalFrameRenderTime = 0.0f;
+		totalFrameUpdateTime = 0.0f;
+
+		gamePerformanceStartTime = std::chrono::high_resolution_clock::now();
+	}
 }
 
 void DXRenderer::cleanup()

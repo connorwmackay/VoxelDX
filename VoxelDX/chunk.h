@@ -34,17 +34,16 @@ protected:
 	XMFLOAT3 position;
 	Mesh mesh;
 	Block* blocks;
-	std::vector<Vertex> chunkVertices;
 
-	void setVerticesByPosition();
+	std::vector<Vertex> setVerticesByPosition();
 	int getBlocksIndex(int x, int y, int z);
 public:
 	Chunk();
-	Chunk(ID3D11Device* device, XMFLOAT3 position);
+	Chunk(ID3D11Device* device, ID3D11DeviceContext* context, XMFLOAT3 position);
 
 	void setVisibleBlocks();
 
-	void buildMesh();
+	void buildMesh(ID3D11DeviceContext* context);
 
 	void update(ID3D11DeviceContext* context, XMFLOAT4X4 view, XMFLOAT4X4 projection);
 	void draw(ID3D11DeviceContext* context);

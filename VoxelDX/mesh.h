@@ -31,17 +31,14 @@ protected:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer;
 	DXShader shader;
 
-	std::vector<Vertex> vertices;
+	int verticesSize;
 
 	bool isVerticesUpdateScheduled;
 public:
 	Mesh();
 	Mesh(ID3D11Device* device, Vertex vertices[], unsigned int verticesSize, XMFLOAT3 translation, XMFLOAT3 rotation, XMFLOAT3 scale);
 
-	void addPoints(std::vector<Vertex> inVertices);
-	void setPoints(std::vector<Vertex> inVertices);
-
-	std::vector<Vertex> getVertices() const;
+	void setPoints(std::vector<Vertex> vertices, ID3D11DeviceContext* context);
 
 	void update(ID3D11DeviceContext* context, XMFLOAT4X4 view, XMFLOAT4X4 projection);
 	void draw(ID3D11DeviceContext* context);

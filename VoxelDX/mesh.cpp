@@ -12,11 +12,9 @@ Mesh::Mesh(ID3D11Device* device, Vertex vertices[], unsigned int verticesSize, X
 	// Setup the quad buffers
 	HRESULT hRes;
 
-	this->vertices = std::vector<Vertex>(vertices, vertices + verticesSize);
-
 	D3D11_BUFFER_DESC blockVBDesc;
 	ZeroMemory(&blockVBDesc, sizeof(D3D11_BUFFER_DESC));
-	blockVBDesc.ByteWidth = this->vertices.size() * sizeof(Vertex);
+	blockVBDesc.ByteWidth = verticesSize * sizeof(Vertex);
 	blockVBDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	blockVBDesc.Usage = D3D11_USAGE_DYNAMIC;
 	blockVBDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
@@ -25,7 +23,7 @@ Mesh::Mesh(ID3D11Device* device, Vertex vertices[], unsigned int verticesSize, X
 
 	D3D11_SUBRESOURCE_DATA meshVBData;
 	ZeroMemory(&meshVBData, sizeof(D3D11_SUBRESOURCE_DATA));
-	meshVBData.pSysMem = this->vertices.data();
+	meshVBData.pSysMem = vertices;
 	meshVBData.SysMemSlicePitch = 0;
 	meshVBData.SysMemSlicePitch = 0;
 
@@ -59,6 +57,7 @@ Mesh::Mesh(ID3D11Device* device, Vertex vertices[], unsigned int verticesSize, X
 	);
 
 	shader = DXShader(device, quadVertexShader, ARRAYSIZE(quadVertexShader), quadPixelShader, ARRAYSIZE(quadPixelShader), inputElementDesc, ARRAYSIZE(inputElementDesc));
+	this->verticesSize = verticesSize;
 }
 
 void Mesh::update(ID3D11DeviceContext* context, XMFLOAT4X4 view, XMFLOAT4X4 projection) {
@@ -94,17 +93,6 @@ void Mesh::update(ID3D11DeviceContext* context, XMFLOAT4X4 view, XMFLOAT4X4 proj
 		0,
 		0
 	);
-
-	if (isVerticesUpdateScheduled) {
-		D3D11_MAPPED_SUBRESOURCE mappedVB;
-		ZeroMemory(&mappedVB, sizeof(D3D11_MAPPED_SUBRESOURCE));
-
-		context->Map(vertexBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedVB);
-		memcpy(mappedVB.pData, vertices.data(), sizeof(Vertex) * vertices.size());
-		context->Unmap(vertexBuffer.Get(), 0);
-
-		isVerticesUpdateScheduled = false;
-	}
 }
 
 void Mesh::draw(ID3D11DeviceContext* context) {
@@ -118,19 +106,15 @@ void Mesh::draw(ID3D11DeviceContext* context) {
 	context->VSSetShader(shader.getVertexShader(), nullptr, 0);
 	context->VSSetConstantBuffers(0, 1, constantBuffer.GetAddressOf());
 	context->PSSetShader(shader.getPixelShader(), nullptr, 0);
-	context->Draw(vertices.size(), 0);
+	context->Draw(verticesSize, 0);
 }
 
-void Mesh::addPoints(std::vector<Vertex> inVertices) {
-	vertices.insert(vertices.end(), inVertices.begin(), inVertices.end());
-	isVerticesUpdateScheduled = true;
-}
+void Mesh::setPoints(std::vector<Vertex> vertices, ID3D11DeviceContext* context) {
+	D3D11_MAPPED_SUBRESOURCE mappedVB;
+	ZeroMemory(&mappedVB, sizeof(D3D11_MAPPED_SUBRESOURCE));
 
-void Mesh::setPoints(std::vector<Vertex> inVertices) {
-	vertices = inVertices;
-	isVerticesUpdateScheduled = true;
-}
-
-std::vector<Vertex> Mesh::getVertices() const {
-	return vertices;
+	context->Map(vertexBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedVB);
+	memcpy(mappedVB.pData, vertices.data(), sizeof(Vertex) * vertices.size());
+	context->Unmap(vertexBuffer.Get(), 0);
+	verticesSize = vertices.size();
 }
