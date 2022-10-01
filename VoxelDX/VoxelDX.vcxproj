@@ -70,6 +70,11 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>E:\_DEVELOPMENT\VS2022_Projects\VoxelDX\ExternalLibs\imgui-1.88;$(IncludePath)</IncludePath>
+    <SourcePath>$(SourcePath)</SourcePath>
+    <ExternalIncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</ExternalIncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -128,6 +133,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\ExternalLibs\imgui-1.88\backends\imgui_impl_dx11.cpp" />
+    <ClCompile Include="..\ExternalLibs\imgui-1.88\backends\imgui_impl_win32.cpp" />
+    <ClCompile Include="..\ExternalLibs\imgui-1.88\imgui.cpp" />
+    <ClCompile Include="..\ExternalLibs\imgui-1.88\imgui_draw.cpp" />
+    <ClCompile Include="..\ExternalLibs\imgui-1.88\imgui_tables.cpp" />
+    <ClCompile Include="..\ExternalLibs\imgui-1.88\imgui_widgets.cpp" />
+    <ClCompile Include="Input.cpp" />
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="chunk.cpp" />
@@ -137,6 +149,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Input.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="chunk.h" />

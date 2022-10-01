@@ -1,11 +1,13 @@
 #include "dxRenderer.h"
 
 #include <cassert>
+#include <chrono>
 
 DXRenderer::DXRenderer() {}
 
 DXRenderer::DXRenderer(HINSTANCE instance, HWND window)
-	: instance(instance), window(window), camera({8.0f, 8.0f, 40}, {45.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0}) {
+	: instance(instance), window(window), camera({8.0f, 8.0f, 40}, {45.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0}),
+	lastFrameTime(0.0f), lastFrameUpdateTime(0.0f), lastFrameRenderTime(0.0f) {
 	D3D_FEATURE_LEVEL levels[] = {
 		D3D_FEATURE_LEVEL_11_1
 	};
@@ -39,6 +41,7 @@ DXRenderer::DXRenderer(HINSTANCE instance, HWND window)
 	swapChainDesc.BufferCount = 2;
 	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 	swapChainDesc.SampleDesc.Count = 1;
 	swapChainDesc.SampleDesc.Quality = 0;
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
@@ -48,7 +51,6 @@ DXRenderer::DXRenderer(HINSTANCE instance, HWND window)
 	Microsoft::WRL::ComPtr<IDXGIAdapter> adapter;
 	Microsoft::WRL::ComPtr<IDXGIFactory> factory;
 
-	//device->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgiDevice);
 	device.As(&dxgiDevice);
 	hRes = dxgiDevice->GetAdapter(&adapter);
 
@@ -127,12 +129,45 @@ DXRenderer::DXRenderer(HINSTANCE instance, HWND window)
 		depthStencilView.Get()
 	);
 
-	chunk = Chunk(device.Get(), {0.0f, 0.0f, 0.0f});
-	chunk.buildMesh();
+	// Setup ImGui
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	(void)io;
+
+	ImGui::StyleColorsDark();
+
+	ImGui_ImplWin32_Init(window);
+	ImGui_ImplDX11_Init(device.Get(), context.Get());
+
+
+	// Initial draw call...
+	const float teal[] = { 0.098f, 0.439f, 0.439f, 1.000f };
+
+	assert(renderTargetView.Get());
+	context->ClearRenderTargetView(renderTargetView.Get(), teal);
+	context->ClearDepthStencilView(
+		depthStencilView.Get(),
+		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
+		1.0f,
+		0
+	);
+
+	context->OMSetRenderTargets(
+		1,
+		renderTargetView.GetAddressOf(),
+		depthStencilView.Get()
+	);
+
+	int vsyncOn = 0; // 0 for off, 1 for on
+	swapChain->Present(vsyncOn, 0);
+
+	chunk = Chunk(device.Get(), { 0.0f, 0.0f, 0.0f });
 }
 
 void DXRenderer::update()
 {
+	auto updateStartTime = std::chrono::high_resolution_clock::now();
 	// Get the Window Size
 	RECT windowRect;
 	GetWindowRect(window, &windowRect);
@@ -143,11 +178,29 @@ void DXRenderer::update()
 	XMFLOAT4X4 projection = camera.getProjectionMatrix(45.0f, windowWidth, windowHeight);
 	XMFLOAT4X4 view = camera.getViewMatrix();
 	chunk.update(context.Get(), view, projection);
+
+	// ImGui logic
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	ImGui::Begin("Performance");
+	ImGui::Text("Frame Time: %.5fms", lastFrameTime * 1000);
+	ImGui::Text("Render loop time: %.5fms", lastFrameRenderTime * 1000);
+	ImGui::Text("Update loop time: %.5fms", lastFrameUpdateTime * 1000);
+	ImGui::Text("FPS: %d", (int)(1.0f / lastFrameTime));
+	ImGui::End();
+
+	auto updateEndTime = std::chrono::high_resolution_clock::now();
+	lastFrameUpdateTime = std::chrono::duration<double>(updateEndTime - updateStartTime).count();
 }
 
 void DXRenderer::render() {
-
+	static int numFrames = 0;
+	auto renderStartTime = std::chrono::high_resolution_clock::now();
 	const float teal[] = { 0.098f, 0.439f, 0.439f, 1.000f };
+
+	static auto gamePerformanceStartTime = std::chrono::high_resolution_clock::now();
 
 	assert(renderTargetView.Get());
 	context->ClearRenderTargetView(renderTargetView.Get(), teal);
@@ -166,6 +219,27 @@ void DXRenderer::render() {
 
 	chunk.draw(context.Get());
 
-	// Swap back buffers
-	swapChain->Present(1, 0);
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+	int vsyncOn = 0; // 0 for off, 1 for on
+	swapChain->Present(vsyncOn, DXGI_PRESENT_ALLOW_TEARING);
+
+	auto renderEndTime = std::chrono::high_resolution_clock::now();
+	double gamePerformanceTime = std::chrono::duration<double>(renderEndTime - gamePerformanceStartTime).count();
+
+	if (gamePerformanceTime > 0.2f) {
+		lastFrameRenderTime = std::chrono::duration<double>(renderEndTime - renderStartTime).count();
+		lastFrameTime = lastFrameRenderTime + lastFrameUpdateTime;
+		gamePerformanceStartTime = std::chrono::high_resolution_clock::now();
+	}
+
+	numFrames++;
+}
+
+void DXRenderer::cleanup()
+{
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
 }

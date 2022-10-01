@@ -14,6 +14,11 @@
 #include "quadVertexShader.h"
 
 #include "dxShader.h"
+#include "Input.h"
+
+#include <imgui.h>
+#include <backends\imgui_impl_win32.h>
+#include <backends\imgui_impl_dx11.h>
 
 class DXRenderer
 {
@@ -33,11 +38,16 @@ protected:
 
 	Camera camera;
 	Chunk chunk;
+
+	double lastFrameTime;
+	double lastFrameUpdateTime;
+	double lastFrameRenderTime;
 public:
 	DXRenderer();
 	DXRenderer(HINSTANCE instance, HWND window);
 
 	void update();
 	void render();
+	void cleanup();
 };
 

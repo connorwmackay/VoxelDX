@@ -2,6 +2,11 @@
 
 #include <future>
 
+void callAssert()
+{
+	assert(false == true);
+}
+
 DXWindow::DXWindow(HINSTANCE instance, int showWindow)
 	: instance(instance), wndClass({}) {
 	const wchar_t CLASS_NAME[] = L"VoxelDX";
@@ -27,6 +32,8 @@ DXWindow::DXWindow(HINSTANCE instance, int showWindow)
 
 	ShowWindow(window, showWindow);
 	renderer = DXRenderer(instance, window);
+
+	inputManager.AddKeyCallback(0x57, &callAssert);
 }
 
 void DXWindow::run() {
@@ -38,21 +45,28 @@ void DXWindow::run() {
 		}
 		else
 		{
+			
 			renderer.update();
 			renderer.render();
 		}
 	}
 
-	//renderer.release();
+	renderer.cleanup();
 }
 
 LRESULT CALLBACK DXWindow::WindowProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
+	if (ImGui_ImplWin32_WndProcHandler(window, msg, wParam, lParam))
+		return true;
+
 	switch (msg)
 	{
 	case WM_QUIT:
 		DestroyWindow(window);
 	case WM_CLOSE:
 		DestroyWindow(window);
+	case WM_KEYUP:
+		inputManager.HandleKeyUpEvent(wParam);
+		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 	}

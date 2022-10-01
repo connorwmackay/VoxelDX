@@ -8,6 +8,7 @@ using namespace DirectX;
 
 // TODO: Only half of Y blocks show up
 #define CHUNK_SIZE XMFLOAT3 (16.0f, 16.0f, 16.0f)
+#define VOXEL_SIZE 1.0f;
 
 enum class BlockFaces
 {
@@ -32,10 +33,11 @@ class Chunk
 protected:
 	XMFLOAT3 position;
 	Mesh mesh;
-	Block blocks[(int)CHUNK_SIZE.x][(int)CHUNK_SIZE.y][(int)CHUNK_SIZE.z];
+	Block* blocks;
 	std::vector<Vertex> chunkVertices;
 
 	void setVerticesByPosition();
+	int getBlocksIndex(int x, int y, int z);
 public:
 	Chunk();
 	Chunk(ID3D11Device* device, XMFLOAT3 position);
